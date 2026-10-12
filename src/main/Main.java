@@ -5,11 +5,13 @@ import model.Paquete;
 public class Main {
 
     public static void main(String[] args) {
-        // OJO: Los paquetes DEBEN estar ordenados por codigo para que la busqueda binaria funcione
-        Paquete[] paquetes = new Paquete
-        paquetes = new Paquete("PQ01", "Armenia", 12.5, 5);
-        paquetes = new Paquete("PQ02", "Calarcá", 8.2, 3);
-        paquetes = new Paquete("PQ03", "Armenia", 20.0, 4);
+        // Inicializamos el arreglo con espacio para 3 paquetes (corregido aqui con corchetes)
+        Paquete[] paquetes = new Paquete[3];
+
+        // Llenamos las casillas del arreglo con los paquetes ordenados por codigo
+        paquetes[0] = new Paquete("PQ01", "Armenia", 12.5, 5);
+        paquetes[1] = new Paquete("PQ02", "Calarcá", 8.2, 3);
+        paquetes[2] = new Paquete("PQ03", "Armenia", 20.0, 4);
 
         // --- PRUEBA METODO RECURSIVO 1 ---
         String municipioBuscado = "Armenia";
@@ -23,7 +25,7 @@ public class Main {
 
         // --- PRUEBA METODO 3: BUSQUEDA BINARIA ---
         String codigoABuscar = "PQ02";
-        // Buscamos en todo el arreglo, desde la posicion 0 hasta la ultima (tamano - 1)
+        // Buscamos en todo el arreglo, desde el inicio (0) hasta el final (tamano - 1)
         int posicionEncontrada = busquedaBinariaPorCodigo(paquetes, codigoABuscar, 0, paquetes.length - 1);
 
         if (posicionEncontrada != -1) {
@@ -60,36 +62,33 @@ public class Main {
         }
     }
 
-    /**
-     * Metodo para buscar un paquete tirando de matematicas (partiendo a la mitad).
-     * Tampoco usa ciclos for ni while, se va llamando sola.
-     */
+    // Metodo 3: Busqueda Binaria (partiendo a la mitad sin usar for o while)
     public static int busquedaBinariaPorCodigo(Paquete[] arreglo, String codigoBuscado, int izquierda, int derecha) {
-        // CASO BASE 1: Si el puntero izquierdo pasa al derecho, el paquete no existe en la lista
+        // Caso Base 1: Si los indices se cruzan, el codigo no esta en el arreglo
         if (izquierda > derecha) {
             return -1;
         }
 
-        // Encontramos el punto medio del arreglo para partir el problema
+        // Sacamos el punto medio de la seccion actual
         int mitad = (izquierda + derecha) / 2;
         Paquete paqueteMitad = arreglo[mitad];
 
-        // Comparamos el codigo del medio con el que estamos buscando
-        // compareTo devuelve 0 si los textos son exactamente iguales
+        // Comparamos el codigo de la mitad con el que buscamos
         int resultadoComparacion = paqueteMitad.getCodigo().compareTo(codigoBuscado);
 
-        // CASO BASE 2: ¡Tuvimos suerte y el de la mitad era el que buscabamos!
+        // Caso Base 2: Lo encontramos directo en la mitad
         if (resultadoComparacion == 0) {
             return mitad;
         }
 
-        // CASO RECURSIVO: Si el de la mitad es mayor, buscamos solo en la mitad de la IZQUIERDA
+        // Si el de la mitad es mayor, nos movemos a buscar en la izquierda
         if (resultadoComparacion > 0) {
             return busquedaBinariaPorCodigo(arreglo, codigoBuscado, izquierda, mitad - 1);
         }
-        // Si el de la mitad es menor, buscamos solo en la mitad de la DERECHA
+        // Si el de la mitad es menor, nos movemos a buscar en la derecha
         else {
             return busquedaBinariaPorCodigo(arreglo, codigoBuscado, mitad + 1, derecha);
         }
     }
 }
+
