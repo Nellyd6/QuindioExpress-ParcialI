@@ -6,16 +6,13 @@ import com.quindioexpress.servicios.GestorDespachoPrioritario;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Demostración integral y única de QuindíoExpress.
- *
- * <p>Reúne en una sola clase todas las demostraciones del sistema: consultas,
- * ordenamientos, atención FIFO, despacho por prioridad, asignación/entrega e
- * historial.</p>
  */
 public class Main {
 
@@ -25,6 +22,7 @@ public class Main {
         CentroDistribucion centro = new CentroDistribucion();
         centro.cargarDatosIniciales();
 
+        // Ejecucion secuencial de los bloques de prueba creados en el sistema
         resumenCarga(centro);
         consultaPorCodigo(centro);
         municipios(centro);
@@ -34,6 +32,7 @@ public class Main {
         verificacionOrdenDeDespacho();
         asignacionYEntrega(centro);
         historialDeEntregas(centro);
+        algoritmosAdicionales(centro);
 
         System.out.println("\n=== FIN DE LA DEMOSTRACIÓN ===");
     }
@@ -87,20 +86,11 @@ public class Main {
         System.out.println("   Pendientes de despacho: " + centro.cantidadPendientesDespacho());
     }
 
-    /**
-     * Comprueba y muestra el orden exacto de despacho del ejemplo del enunciado
-     * y las tres reglas de desempate (prioridad ↓, tiempo ↑, código ↑).
-     *
-     * <p>Si el orden no coincide, informa el fallo por consola sin interrumpir
-     * la ejecución del programa.</p>
-     */
     private static void verificacionOrdenDeDespacho() {
         System.out.println("\n7) VERIFICACIÓN DEL ORDEN DE DESPACHO (reglas de desempate)");
 
         GestorDespachoPrioritario gestor = new GestorDespachoPrioritario();
 
-        // Datos diseñados para ejercitar las tres reglas, encolados a propósito
-        // en orden desordenado.
         List<Paquete> entrada = Arrays.asList(
                 new Paquete("PQ942", "Calarcá", 7.5, 5, 5),
                 new Paquete("PQ420", "Filandia", 2.4, 4, 1),
@@ -144,5 +134,33 @@ public class Main {
         for (Paquete entregado : centro.getHistorialEntregas().getHistorial()) {
             System.out.println("   - " + entregado.getCodigo() + " (" + entregado.getDestino() + ")");
         }
+    }
+
+    // Carga de datos reales de la demostracion para validar los algoritmos avanzados
+    private static void algoritmosAdicionales(CentroDistribucion centro) {
+        System.out.println("\n10) ALGORITMOS ADICIONALES");
+
+        List<Paquete> todosLosPaquetes = centro.obtenerOrdenLlegada();
+
+        // 1. Calculo recursivo de peso total en Armenia
+        double pesoArmenia = centro.calcularPesoTotalRecursivo(todosLosPaquetes, "Armenia", 0);
+        System.out.println("   - Peso total recursivo para Armenia: " + pesoArmenia + " kg");
+
+        // 2. Conteo recursivo de paquetes con nivel de prioridad alto
+        int prioritarios = centro.contarPaquetesPorPrioridadRecursivo(todosLosPaquetes, 4, 0);
+        System.out.println("   - Cantidad de paquetes con prioridad >= 4: " + prioritarios);
+
+        // Clonado y ordenamiento de lista para cumplir la precondicion de busqueda binaria
+        List<Paquete> listaOrdenadaBusqueda = new ArrayList<>(todosLosPaquetes);
+        Collections.sort(listaOrdenadaBusqueda);
+
+        // 3. Localizacion de un codigo mediante busqueda binaria
+        String codigoBuscado = "PQ731";
+        int posBinaria = centro.busquedaBinariaPorCodigo(listaOrdenadaBusqueda, codigoBuscado, 0, listaOrdenadaBusqueda.size() - 1);
+        System.out.println("   - Busqueda binaria de " + codigoBuscado + ". Posicion: " + posBinaria);
+
+        // 4. Identificacion del paquete mas pesado mediante divide y venceras
+        Paquete masPesado = centro.encontrarMasPesadoDivideYVenceras(todosLosPaquetes, 0, todosLosPaquetes.size() - 1);
+        System.out.println("   - Paquete mas pesado (Divide y Venceras): " + masPesado.getCodigo() + " (" + masPesado.getPeso() + " kg)");
     }
 }
