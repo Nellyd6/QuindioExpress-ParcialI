@@ -1,4 +1,4 @@
-package com.quindioexpress.principal;
+package main.java.com.quindioexpress.principal;
 
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.servicios.CentroDistribucion;
