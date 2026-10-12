@@ -1,119 +1,211 @@
 package com.quindioexpress.servicios;
+
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.modelo.Repartidor;
+import com.quindioexpress.util.GeneradorDatosIniciales;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
- * Gestiona las operaciones centrales de QuindíoExpress utilizando
- * el Java Collections Framework (JCF) para optimizar búsquedas, colas de prioridad y reportes.
+ * Fachada central (capa de servicio) del centro de distribución QuindíoExpress.
+ *
+ * <p>Unifica los módulos del Integrante 2 en una única puerta de entrada,
+ * coordinando los subcomponentes especializados:</p>
+ * <ul>
+ *   <li>{@link GestorColeccionesPaquetes}: consultas rápidas e indexación.</li>
+ *   <li>{@link GestorDespachoPrioritario}: despacho por prioridad.</li>
+ *   <li>{@link ServicioAsignacionRepartidor}: registro y asignación de repartidores.</li>
+ * </ul>
+ * <p>Además integra el módulo del Integrante 1 ({@link HistorialEntregas}) para
+ * dejar constancia de las entregas procesadas.</p>
+ *
+ * <p>No reimplementa lógica: solo coordina los subcomponentes y expone las
+ * operaciones de la capa de servicio.</p>
  */
 public class CentroDistribucion {
 
-    // Mapa para búsqueda rápida O(1) por código de paquete
-    private Map<String, Paquete> mapaPaquetes;
+    private final GestorColeccionesPaquetes gestorColecciones;
+    private final GestorDespachoPrioritario gestorDespacho;
+    private final ServicioAsignacionRepartidor servicioRepartidores;
+    private final HistorialEntregas historialEntregas;
 
-    // Cola de prioridad para atención prioritaria (con reglas de desempate)
-    private PriorityQueue<Paquete> colaPrioridad;
-
-    //  Conjunto ordenado alfabéticamente para los destinos únicos
-    private Set<String> destinosUnicos;
-
-    //  Mapa para agrupar paquetes por municipio de destino
-    private Map<String, List<Paquete>> paquetesPorMunicipio;
-
-    //  Lista de repartidores registrados
-    private List<Repartidor> repartidores;
+    /**
+     * Cola FIFO de paquetes pendientes de atención por orden de llegada.
+     * Es una estructura de procesamiento independiente del registro de
+     * auditoría (el {@code ordenLlegada} del gestor de colecciones).
+     */
+    private final Queue<Paquete> colaLlegada;
 
     public CentroDistribucion() {
-        this.mapaPaquetes = new HashMap<>();
-
-        // Configuramos la PriorityQueue con las reglas de negocio del proyecto:
-        // 1. Mayor prioridad (número más alto o según diseño, aquí asumimos 5 como máxima prioridad)
-        // 2. Menor tiempo estimado
-        // 3. Código alfabético ascendente
-        this.colaPrioridad = new PriorityQueue<>((p1, p2) -> {
-            // Comparar por prioridad (mayor prioridad primero)
-            int comparacionPrioridad = Integer.compare(p2.getPrioridad(), p1.getPrioridad());
-            if (comparacionPrioridad != 0) {
-                return comparacionPrioridad;
-            }
-            // Si empatan, comparar por menor tiempo estimado
-            int comparacionTiempo = Double.compare(p1.getTiempoEstimado(), p2.getTiempoEstimado());
-            if (comparacionTiempo != 0) {
-                return comparacionTiempo;
-            }
-            // Si vuelven a empatar, comparar por código alfabético ascendente
-            return p1.getCodigo().compareTo(p2.getCodigo());
-        });
-
-        this.destinosUnicos = new TreeSet<>();
-        this.paquetesPorMunicipio = new HashMap<>();
-        this.repartidores = new ArrayList<>();
+        this.gestorColecciones = new GestorColeccionesPaquetes();
+        this.gestorDespacho = new GestorDespachoPrioritario();
+        this.servicioRepartidores = new ServicioAsignacionRepartidor();
+        this.historialEntregas = new HistorialEntregas();
+        this.colaLlegada = new ArrayDeque<>();
     }
 
     /**
-     * Registra un nuevo paquete en el centro de distribución actualizando todas las colecciones.
+     * Carga los datos iniciales de prueba (paquetes y repartidores) desde
+     * {@link GeneradorDatosIniciales}.
      */
-    public void registrarPaquete(Paquete paquete) {
-        if (paquete == null) return;
-
-        // Evitar duplicados por código
-        if (mapaPaquetes.containsKey(paquete.getCodigo())) {
-            throw new IllegalArgumentException("Ya existe un paquete con el código: " + paquete.getCodigo());
+    public void cargarDatosIniciales() {
+        for (Repartidor repartidor : GeneradorDatosIniciales.obtenerRepartidoresIniciales()) {
+            servicioRepartidores.registrarRepartidor(repartidor);
         }
-
-        // Agregar al mapa de búsqueda rápida
-        mapaPaquetes.put(paquete.getCodigo(), paquete);
-
-        // Agregar a la cola de prioridad
-        colaPrioridad.add(paquete);
-
-        // Registrar destino único ordenado
-        destinosUnicos.add(paquete.getDestino());
-
-        // Agrupar por municipio
-        paquetesPorMunicipio.putIfAbsent(paquete.getDestino(), new ArrayList<>());
-        paquetesPorMunicipio.get(paquete.getDestino()).add(paquete);
-    }
-
-    /**
-     * Registra un repartidor en el sistema.
-     */
-    public void registrarRepartidor(Repartidor repartidor) {
-        if (repartidor != null && !repartidores.contains(repartidor)) {
-            repartidores.add(repartidor);
+        for (Paquete paquete : GeneradorDatosIniciales.obtenerPaquetesIniciales()) {
+            registrarNuevoPaquete(paquete);
         }
     }
 
     /**
-     * Busca un paquete por su código utilizando el HashMap O(1).
+     * Registra un paquete en las colecciones de consulta rápida, en la cola
+     * FIFO de atención por orden de llegada y en la cola prioritaria de despacho.
+     *
+     * @param paquete paquete a registrar.
+     * @return {@code true} si se registró; {@code false} si es nulo o si ya
+     *         existe un paquete con el mismo código.
      */
-    public Paquete buscarPaquetePorCodigo(String codigo) {
-        return mapaPaquetes.get(codigo);
+    public boolean registrarNuevoPaquete(Paquete paquete) {
+        if (paquete == null) {
+            return false;
+        }
+        if (!gestorColecciones.registrarPaquete(paquete)) {
+            return false; // código duplicado: no se encola
+        }
+        gestorDespacho.encolarPaquete(paquete);
+        colaLlegada.offer(paquete);
+        return true;
     }
 
     /**
-     * Obtiene el siguiente paquete a despachar según la PriorityQueue.
+     * Atiende el siguiente paquete respetando el orden de llegada (FIFO),
+     * extrayéndolo de la {@link Queue} de atención.
+     *
+     * <p>Atender un paquete no lo marca como entregado y no altera el registro
+     * de auditoría del gestor de colecciones; solo lo retira de la cola de
+     * pendientes por orden de llegada.</p>
+     *
+     * @return el siguiente paquete en orden de llegada, o {@code null} si ya no
+     *         quedan paquetes por atender.
      */
-    public Paquete siguientePaqueteADespachar() {
-        return colaPrioridad.poll(); // Extrae y remueve el de mayor prioridad
+    public Paquete atenderPorOrdenLlegada() {
+        return colaLlegada.poll();
     }
 
-    // --- Getters para consultar las estructuras ---
-    public Set<String> getDestinosUnicos() {
-        return destinosUnicos;
+    /**
+     * Despacha el paquete de mayor prioridad según las reglas de la cola
+     * prioritaria (prioridad ↓, tiempo ↑, código ↑).
+     *
+     * @return el siguiente paquete a despachar, o {@code null} si no hay pendientes.
+     */
+    public Paquete despacharPorPrioridad() {
+        return gestorDespacho.despacharSiguiente();
     }
 
-    public Map<String, List<Paquete>> getPaquetesPorMunicipio() {
-        return paquetesPorMunicipio;
+    /**
+     * Procesa la asignación y entrega de un paquete: busca un repartidor idóneo,
+     * realiza la asignación y, si tiene éxito, registra el paquete en el
+     * historial de entregas (módulo del Integrante 1).
+     *
+     * @param paquete paquete a procesar.
+     * @return {@code true} si se encontró repartidor y la asignación fue válida;
+     *         {@code false} en caso contrario.
+     */
+    public boolean procesarAsignacionYEntrega(Paquete paquete) {
+        if (paquete == null) {
+            return false;
+        }
+        Repartidor repartidor = servicioRepartidores.buscarRepartidorDisponiblePara(paquete);
+        if (repartidor == null) {
+            return false;
+        }
+        if (!servicioRepartidores.realizarAsignacion(paquete, repartidor)) {
+            return false;
+        }
+        historialEntregas.registrarEntrega(paquete);
+        return true;
     }
 
-    public List<Repartidor> getRepartidores() {
-        return repartidores;
+    // --- Repartidores ---
+
+    /**
+     * Registra un repartidor delegando en el servicio de asignación.
+     *
+     * @return {@code true} si se registró; {@code false} si es nulo o ya existe.
+     */
+    public boolean registrarRepartidor(Repartidor repartidor) {
+        return servicioRepartidores.registrarRepartidor(repartidor);
+    }
+
+    /**
+     * Busca un repartidor disponible cuya zona coincida con el destino del paquete.
+     */
+    public Repartidor buscarRepartidorDisponiblePara(Paquete paquete) {
+        return servicioRepartidores.buscarRepartidorDisponiblePara(paquete);
+    }
+
+    /**
+     * Asigna un paquete a un repartidor validando disponibilidad y zona.
+     */
+    public boolean realizarAsignacion(Paquete paquete, Repartidor repartidor) {
+        return servicioRepartidores.realizarAsignacion(paquete, repartidor);
+    }
+
+    /**
+     * @return lista (en orden de registro) con los repartidores registrados.
+     */
+    public List<Repartidor> obtenerRepartidores() {
+        return servicioRepartidores.obtenerRepartidores();
+    }
+
+    // --- Operaciones de consulta ---
+
+    public Paquete buscarPorCodigo(String codigo) {
+        return gestorColecciones.buscarPorCodigo(codigo);
+    }
+
+    public Set<String> obtenerMunicipiosUnicos() {
+        return gestorColecciones.obtenerMunicipiosUnicos();
+    }
+
+    public SortedSet<String> obtenerMunicipiosOrdenados() {
+        return gestorColecciones.obtenerMunicipiosOrdenados();
+    }
+
+    public Set<Paquete> obtenerPaquetesPorMunicipio(String municipio) {
+        return gestorColecciones.obtenerPaquetesPorMunicipio(municipio);
+    }
+
+    public Map<String, Set<Paquete>> obtenerAgrupacionPorMunicipio() {
+        return gestorColecciones.obtenerAgrupacionPorMunicipio();
+    }
+
+    public List<Paquete> obtenerOrdenLlegada() {
+        return gestorColecciones.obtenerOrdenLlegada();
+    }
+
+    public int cantidadPendientesDespacho() {
+        return gestorDespacho.cantidadPendientes();
     }
 
     public int totalPaquetesRegistrados() {
-        return mapaPaquetes.size();
+        return gestorColecciones.totalPaquetesRegistrados();
+    }
+
+    public int totalRepartidores() {
+        return servicioRepartidores.totalRepartidores();
+    }
+
+    public int totalEntregas() {
+        return historialEntregas.totalEntregas();
+    }
+
+    public HistorialEntregas getHistorialEntregas() {
+        return historialEntregas;
     }
 }
