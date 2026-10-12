@@ -5,10 +5,8 @@ import model.Paquete;
 public class Main {
 
     public static void main(String[] args) {
-        // Inicializamos el arreglo con espacio para 3 paquetes (corregido aqui con corchetes)
+        // Arreglo de pruebas obligatorio ordenado por codigo para los metodos
         Paquete[] paquetes = new Paquete[3];
-
-        // Llenamos las casillas del arreglo con los paquetes ordenados por codigo
         paquetes[0] = new Paquete("PQ01", "Armenia", 12.5, 5);
         paquetes[1] = new Paquete("PQ02", "Calarcá", 8.2, 3);
         paquetes[2] = new Paquete("PQ03", "Armenia", 20.0, 4);
@@ -25,7 +23,6 @@ public class Main {
 
         // --- PRUEBA METODO 3: BUSQUEDA BINARIA ---
         String codigoABuscar = "PQ02";
-        // Buscamos en todo el arreglo, desde el inicio (0) hasta el final (tamano - 1)
         int posicionEncontrada = busquedaBinariaPorCodigo(paquetes, codigoABuscar, 0, paquetes.length - 1);
 
         if (posicionEncontrada != -1) {
@@ -34,6 +31,12 @@ public class Main {
         } else {
             System.out.println("El paquete con codigo " + codigoABuscar + " no existe.");
         }
+
+        // --- PRUEBA METODO 4: DIVIDE Y VENCERAS ---
+        // Buscamos el paquete mas pesado recorriendo desde la posicion 0 hasta la ultima
+        Paquete paqueteMasPesado = encontrarMasPesadoDivideYVenceras(paquetes, 0, paquetes.length - 1);
+        System.out.println("El paquete mas pesado de todos es: " + paqueteMasPesado.getCodigo() +
+                " con un peso de: " + paqueteMasPesado.getPeso() + " kg");
     }
 
     // Metodo recursivo 1: Sumar pesos
@@ -62,33 +65,47 @@ public class Main {
         }
     }
 
-    // Metodo 3: Busqueda Binaria (partiendo a la mitad sin usar for o while)
+    // Metodo 3: Busqueda Binaria
     public static int busquedaBinariaPorCodigo(Paquete[] arreglo, String codigoBuscado, int izquierda, int derecha) {
-        // Caso Base 1: Si los indices se cruzan, el codigo no esta en el arreglo
         if (izquierda > derecha) {
             return -1;
         }
-
-        // Sacamos el punto medio de la seccion actual
         int mitad = (izquierda + derecha) / 2;
         Paquete paqueteMitad = arreglo[mitad];
-
-        // Comparamos el codigo de la mitad con el que buscamos
         int resultadoComparacion = paqueteMitad.getCodigo().compareTo(codigoBuscado);
 
-        // Caso Base 2: Lo encontramos directo en la mitad
         if (resultadoComparacion == 0) {
             return mitad;
         }
-
-        // Si el de la mitad es mayor, nos movemos a buscar en la izquierda
         if (resultadoComparacion > 0) {
             return busquedaBinariaPorCodigo(arreglo, codigoBuscado, izquierda, mitad - 1);
-        }
-        // Si el de la mitad es menor, nos movemos a buscar en la derecha
-        else {
+        } else {
             return busquedaBinariaPorCodigo(arreglo, codigoBuscado, mitad + 1, derecha);
         }
     }
-}
 
+    /**
+     * Metodo 4: Divide y Venceras.
+     * Parte el arreglo a la mitad de forma sucesiva para encontrar el objeto con mayor peso.
+     */
+    public static Paquete encontrarMasPesadoDivideYVenceras(Paquete[] arreglo, int inicio, int fin) {
+        // CASO BASE: Si el sub-arreglo tiene un solo elemento, ese elemento es el mas pesado
+        if (inicio == fin) {
+            return arreglo[inicio];
+        }
+
+        // Dividimos el problema encontrando la mitad de la sección actual
+        int mitad = (inicio + fin) / 2;
+
+        //Buscamos recursivamente el campeon del lado izquierdo y del derecho
+        Paquete maxIzquierdo = encontrarMasPesadoDivideYVenceras(arreglo, inicio, mitad);
+        Paquete maxDerecho = encontrarMasPesadoDivideYVenceras(arreglo, mitad + 1, fin);
+
+        // Comparamos los dos campeones y retornamos el que gane en peso
+        if (maxIzquierdo.getPeso() >= maxDerecho.getPeso()) {
+            return maxIzquierdo;
+        } else {
+            return maxDerecho;
+        }
+    }
+}
