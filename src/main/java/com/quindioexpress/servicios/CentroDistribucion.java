@@ -116,4 +116,65 @@ public class CentroDistribucion {
     public int totalPaquetesRegistrados() {
         return mapaPaquetes.size();
     }
+
+    // Sumar pesos de un municipio por indices
+    public double calcularPesoTotalRecursivo(List<Paquete> lista, String municipio, int indice) {
+        if (indice == lista.size()) {
+            return 0.0;
+        }
+        Paquete paqueteActual = lista.get(indice);
+        if (paqueteActual.getDestino().equalsIgnoreCase(municipio)) {
+            return paqueteActual.getPeso() + calcularPesoTotalRecursivo(lista, municipio, indice + 1);
+        } else {
+            return calcularPesoTotalRecursivo(lista, municipio, indice + 1);
+        }
+    }
+
+    // Contar paquetes que cumplan con la prioridad minima
+    public int contarPaquetesPorPrioridadRecursivo(List<Paquete> lista, int prioridadMinima, int indice) {
+        if (indice == lista.size()) {
+            return 0;
+        }
+        Paquete paqueteActual = lista.get(indice);
+        if (paqueteActual.getPrioridad() >= prioridadMinima) {
+            return 1 + contarPaquetesPorPrioridadRecursivo(lista, prioridadMinima, indice + 1);
+        } else {
+            return contarPaquetesPorPrioridadRecursivo(lista, prioridadMinima, indice + 1);
+        }
+    }
+
+    // Busqueda binaria dividiendo la lista ordenada a la mitad
+    public int busquedaBinariaPorCodigo(List<Paquete> lista, String codigoBuscado, int izquierda, int derecha) {
+        if (izquierda > derecha) {
+            return -1;
+        }
+        int mitad = (izquierda + derecha) / 2;
+        Paquete paqueteMitad = lista.get(mitad);
+        int resultadoComparacion = paqueteMitad.getCodigo().compareTo(codigoBuscado);
+
+        if (resultadoComparacion == 0) {
+            return mitad;
+        }
+        if (resultadoComparacion > 0) {
+            return busquedaBinariaPorCodigo(lista, codigoBuscado, izquierda, mitad - 1);
+        } else {
+            return busquedaBinariaPorCodigo(lista, codigoBuscado, mitad + 1, derecha);
+        }
+    }
+
+    // Divide y venceras para retornar el paquete mas pesado
+    public Paquete encontrarMasPesadoDivideYVenceras(List<Paquete> lista, int inicio, int fin) {
+        if (inicio == fin) {
+            return lista.get(inicio);
+        }
+        int mitad = (inicio + fin) / 2;
+        Paquete maxIzquierdo = encontrarMasPesadoDivideYVenceras(lista, inicio, mitad);
+        Paquete maxDerecho = encontrarMasPesadoDivideYVenceras(lista, mitad + 1, fin);
+
+        if (maxIzquierdo.getPeso() >= maxDerecho.getPeso()) {
+            return maxIzquierdo;
+        } else {
+            return maxDerecho;
+        }
+    }
 }
