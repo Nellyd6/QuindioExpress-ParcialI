@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
         // OJO: Los paquetes DEBEN estar ordenados por codigo para que la busqueda binaria funcione
-        Paquete[] paquetes = new Paquete;
+        Paquete[] paquetes = new Paquete
         paquetes = new Paquete("PQ01", "Armenia", 12.5, 5);
         paquetes = new Paquete("PQ02", "Calarcá", 8.2, 3);
         paquetes = new Paquete("PQ03", "Armenia", 20.0, 4);
