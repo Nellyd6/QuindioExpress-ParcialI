@@ -7,9 +7,9 @@ import com.quindioexpress.modelo.Paquete;
 /**
  * Gestiona el registro histórico de las entregas realizadas.
  *
- * <p>Usa exclusivamente la {@link ListaEnlazada} propia (RN-12) y expone el
+ * <p>Usa exclusivamente la {@link ListaEnlazada} propia y expone el
  * historial como {@link Coleccion} para que el código externo lo recorra con
- * {@code for-each} sin conocer la estructura interna (RF-31, RE-22).</p>
+ * {@code for-each} sin conocer la estructura interna.</p>
  */
 public class HistorialEntregas {
 
@@ -19,7 +19,7 @@ public class HistorialEntregas {
         this.historial = new ListaEnlazada<>();
     }
 
-    /** Agrega un paquete entregado al final, conservando el orden real (RF-30). */
+    /** Agrega un paquete entregado al final, conservando el orden real. */
     public void registrarEntrega(Paquete paquete) {
         if (paquete != null) {
             historial.agregar(paquete);

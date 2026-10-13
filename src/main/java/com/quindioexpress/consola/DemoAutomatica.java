@@ -51,7 +51,7 @@ public class DemoAutomatica {
         System.out.println("   - Paquetes registrados: " + centro.totalPaquetesRegistrados());
         System.out.println("   - Repartidores registrados: " + centro.totalRepartidores());
         Paquete sinPrioridad = new Paquete("PQ000", "Armenia", 1.0, 10);
-        System.out.println("   - Paquete sin indicar prioridad (RF-02) -> " + sinPrioridad
+        System.out.println("   - Paquete sin indicar prioridad -> " + sinPrioridad
                 + "  (prioridad por defecto = " + Paquete.PRIORIDAD_POR_DEFECTO + ")");
     }
 
@@ -125,7 +125,7 @@ public class DemoAutomatica {
     }
 
     private void casosDeError() {
-        System.out.println("\n9) CASOS DE ERROR (validaciones y rechazos, RP-03/RP-04)");
+        System.out.println("\n9) CASOS DE ERROR (validaciones y rechazos)");
 
         // Errores de construcción del modelo
         probarPaqueteInvalido("peso <= 0", () -> new Paquete("PQ900", "Armenia", 0.0, 3, 5));
@@ -133,7 +133,7 @@ public class DemoAutomatica {
         probarPaqueteInvalido("destino vacío", () -> new Paquete("PQ902", "", 1.0, 3, 5));
         probarPaqueteInvalido("tiempo <= 0", () -> new Paquete("PQ903", "Armenia", 1.0, 3, 0));
 
-        // Duplicados (RN-01, RN-02)
+        // Duplicados
         String codigoExistente = centro.obtenerOrdenLlegada().get(0).getCodigo();
         try {
             new Paquete(codigoExistente, "Armenia", 1.0, 3, 5);
@@ -149,7 +149,7 @@ public class DemoAutomatica {
             System.out.println("   - Identificación duplicada -> rechazada: " + e.getMessage());
         }
 
-        // Rechazos de asignación (RN-07, RN-08, RD-10)
+        // Rechazos de asignación
         Repartidor noDisponible = centro.consultarRepartidor("REP-02");
         Paquete calarca = new Paquete("PQ950", "Calarcá", 1.0, 3, 5);
         System.out.println("   - Asignación a repartidor no disponible -> "

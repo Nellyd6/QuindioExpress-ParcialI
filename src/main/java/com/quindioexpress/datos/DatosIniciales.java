@@ -10,7 +10,8 @@ import java.util.Set;
 
 /**
  * Construye y suministra los datos iniciales de prueba para el sistema de
- * gestión de QuindíoExpress (RD-08: definidos directamente en Java).
+ * gestión de QuindíoExpress (definidos directamente en Java, sin archivos ni
+ * base de datos).
  *
  * <p>Todos los datos cumplen estrictamente las reglas de negocio del dominio
  * (peso &gt; 0, prioridad entre 1 y 5, tiempo estimado entero positivo, códigos
@@ -18,7 +19,7 @@ import java.util.Set;
  * validaciones preventivas que lanzan {@link IllegalStateException} si algún
  * dato violara dichas reglas, evitando propagar información inconsistente.</p>
  *
- * <p>Cumple RD-10: hay repartidores no disponibles y el municipio <b>Filandia</b>
+ * <p>Hay repartidores no disponibles y el municipio <b>Filandia</b>
  * queda sin repartidor para evidenciar el rechazo de asignaciones.</p>
  */
 public final class DatosIniciales {
@@ -80,7 +81,7 @@ public final class DatosIniciales {
         paquetes.add(new Paquete("PQ361", "Salento", 1.6, 4, 4));
         paquetes.add(new Paquete("PQ945", "Salento", 6.7, 1, 9));
 
-        // --- Filandia (5 paquetes) - municipio SIN repartidor (RD-10) ---
+        // --- Filandia (5 paquetes) - municipio SIN repartidor ---
         paquetes.add(new Paquete("PQ412", "Filandia", 3.3, 3, 4));
         paquetes.add(new Paquete("PQ678", "Filandia", 7.2, 5, 3));
         paquetes.add(new Paquete("PQ259", "Filandia", 0.7, 2, 5));
@@ -110,9 +111,9 @@ public final class DatosIniciales {
      * <ul>
      *   <li>8 repartidores con identificadores únicos (supera el mínimo de 6).</li>
      *   <li>Zonas cubiertas: Armenia, Calarcá, Salento, Quimbaya y Montenegro.</li>
-     *   <li><b>Filandia no tiene repartidor</b> (RD-10).</li>
+     *   <li><b>Filandia no tiene repartidor</b>.</li>
      *   <li>Estados de disponibilidad variados: REP-02, REP-05 y REP-07 no
-     *       disponibles (RD-10).</li>
+     *       disponibles.</li>
      * </ul>
      *
      * @return lista mutable con los repartidores iniciales.

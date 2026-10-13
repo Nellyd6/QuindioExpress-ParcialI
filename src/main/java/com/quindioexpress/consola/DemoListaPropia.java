@@ -7,10 +7,10 @@ import java.util.NoSuchElementException;
 
 /**
  * Demuestra la estructura propia {@link ListaEnlazada} en todos sus casos
- * límite (RP-07, RE-24 a RE-31).
+ * límite.
  *
  * <p>Se usa {@code Integer} como tipo de elemento para evidenciar que la
- * colección es genérica y no depende de {@code Paquete} (RE-15).</p>
+ * colección es genérica y no depende de {@code Paquete}.</p>
  */
 public class DemoListaPropia {
 
@@ -28,9 +28,9 @@ public class DemoListaPropia {
         System.out.println("=== FIN DE LA DEMOSTRACIÓN DE LA LISTA PROPIA ===");
     }
 
-    /** RE-24: lista vacía. */
+    /** Lista vacía. */
     private void listaVacia() {
-        System.out.println("\n1) Lista vacía (RE-24)");
+        System.out.println("\n1) Lista vacía");
         ListaEnlazada<Integer> lista = new ListaEnlazada<>();
         System.out.println("   - estaVacia() -> " + lista.estaVacia());
         System.out.println("   - tamano() -> " + lista.tamano());
@@ -43,9 +43,9 @@ public class DemoListaPropia {
         }
     }
 
-    /** RE-25: un solo elemento. */
+    /** Un solo elemento. */
     private void unSoloElemento() {
-        System.out.println("\n2) Un solo elemento (RE-25)");
+        System.out.println("\n2) Un solo elemento");
         ListaEnlazada<Integer> lista = new ListaEnlazada<>();
         lista.agregar(42);
         System.out.println("   - tras agregar(42): tamano=" + lista.tamano() + ", obtener(0)=" + lista.obtener(0));
@@ -53,27 +53,27 @@ public class DemoListaPropia {
         System.out.println("   - estado final: estaVacia=" + lista.estaVacia() + ", tamano=" + lista.tamano());
     }
 
-    /** RE-26: eliminar el primero. */
+    /** Eliminar el primero. */
     private void eliminarPrimero() {
-        System.out.println("\n3) Eliminar el primero (RE-26)");
+        System.out.println("\n3) Eliminar el primero");
         ListaEnlazada<Integer> lista = construir(1, 2, 3);
         System.out.println("   - antes: " + contenido(lista));
         System.out.println("   - eliminar(1) -> " + lista.eliminar(1));
         System.out.println("   - después: " + contenido(lista));
     }
 
-    /** RE-27: eliminar uno intermedio. */
+    /** Eliminar uno intermedio. */
     private void eliminarIntermedio() {
-        System.out.println("\n4) Eliminar uno intermedio (RE-27)");
+        System.out.println("\n4) Eliminar uno intermedio");
         ListaEnlazada<Integer> lista = construir(1, 2, 3);
         System.out.println("   - antes: " + contenido(lista));
         System.out.println("   - eliminar(2) -> " + lista.eliminar(2));
         System.out.println("   - después: " + contenido(lista));
     }
 
-    /** RE-28: eliminar el último. */
+    /** Eliminar el último. */
     private void eliminarUltimo() {
-        System.out.println("\n5) Eliminar el último (RE-28)");
+        System.out.println("\n5) Eliminar el último");
         ListaEnlazada<Integer> lista = construir(1, 2, 3);
         System.out.println("   - antes: " + contenido(lista));
         System.out.println("   - eliminar(3) -> " + lista.eliminar(3));
@@ -83,9 +83,9 @@ public class DemoListaPropia {
         System.out.println("   - tras agregar(9): " + contenido(lista));
     }
 
-    /** RE-29: eliminar uno inexistente. */
+    /** Eliminar uno inexistente. */
     private void eliminarInexistente() {
-        System.out.println("\n6) Eliminar uno inexistente (RE-29)");
+        System.out.println("\n6) Eliminar uno inexistente");
         ListaEnlazada<Integer> lista = construir(1, 2, 3);
         int tamanoAntes = lista.tamano();
         boolean resultado = lista.eliminar(99);
@@ -93,9 +93,9 @@ public class DemoListaPropia {
                 + "; tamaño antes=" + tamanoAntes + ", después=" + lista.tamano());
     }
 
-    /** RE-30: posición inválida en obtener. */
+    /** Posición inválida en obtener. */
     private void posicionInvalida() {
-        System.out.println("\n7) Posición inválida en obtener (RE-30)");
+        System.out.println("\n7) Posición inválida en obtener");
         ListaEnlazada<Integer> lista = construir(1, 2, 3);
         try {
             lista.obtener(5);
@@ -105,9 +105,9 @@ public class DemoListaPropia {
         }
     }
 
-    /** RE-31: Iterator.next() sin elementos. */
+    /** Iterator.next() sin elementos. */
     private void iteradorSinElementos() {
-        System.out.println("\n8) Iterator.next() sin elementos (RE-31)");
+        System.out.println("\n8) Iterator.next() sin elementos");
         ListaEnlazada<Integer> lista = new ListaEnlazada<>();
         Iterator<Integer> iterador = lista.iterator();
         System.out.println("   - hasNext() -> " + iterador.hasNext());

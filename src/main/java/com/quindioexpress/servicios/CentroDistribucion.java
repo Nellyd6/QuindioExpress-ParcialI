@@ -25,7 +25,7 @@ import java.util.SortedSet;
  *
  * <p>Es el único punto de entrada del sistema: coordina los gestores de
  * colecciones, de despacho, de repartidores y el historial, sin exponer sus
- * estructuras internas (RT-07).</p>
+ * estructuras internas.</p>
  */
 public class CentroDistribucion {
 
@@ -35,7 +35,7 @@ public class CentroDistribucion {
     private final ServicioAsignacionRepartidor servicioRepartidores;
     private final HistorialEntregas historialEntregas;
 
-    /** Cola FIFO de atención por orden de llegada (RE-06); dueño: esta clase. */
+    /** Cola FIFO de atención por orden de llegada; dueño: esta clase. */
     private final Queue<Paquete> colaLlegada;
 
     /** Asignaciones vigentes: código de paquete -> repartidor ocupado. */
@@ -66,7 +66,7 @@ public class CentroDistribucion {
      *
      * @param paquete paquete a registrar.
      * @throws com.quindioexpress.excepciones.ReglaNegocioException si el código
-     *         ya existe (RN-01) o el paquete es nulo.
+     *         ya existe o el paquete es nulo.
      */
     public void registrarNuevoPaquete(Paquete paquete) {
         gestorColecciones.registrarPaquete(paquete);
@@ -75,8 +75,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Remueve y retorna el siguiente paquete en orden de llegada estricto
-     * (RF-13).
+     * Remueve y retorna el siguiente paquete en orden de llegada estricto.
      *
      * @return el paquete más antiguo pendiente, o {@code null} si no hay.
      */
@@ -85,8 +84,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Extrae el paquete prioritario de acuerdo a las reglas de desempate
-     * (RF-14).
+     * Extrae el paquete prioritario de acuerdo a las reglas de desempate.
      *
      * @return el siguiente paquete a despachar, o {@code null} si no hay.
      */
@@ -96,7 +94,7 @@ public class CentroDistribucion {
 
     /**
      * Asigna un repartidor idóneo al paquete y, si la asignación es válida,
-     * registra la entrega completa (RN-07, RN-08, RF-27, RF-28, RF-29, RF-26).
+     * registra la entrega completa.
      *
      * @param paquete paquete a asignar y entregar.
      * @return {@code true} si se asignó y entregó; {@code false} si no había un
@@ -120,8 +118,8 @@ public class CentroDistribucion {
 
     /**
      * Registra la entrega de un paquete ya asignado: lo retira de todas las
-     * estructuras de pendientes (RF-28, RP-08), lo agrega al historial (RF-29) y
-     * libera al repartidor que lo tenía asignado (RF-26).
+     * estructuras de pendientes, lo agrega al historial y libera al repartidor
+     * que lo tenía asignado.
      *
      * @param paquete paquete entregado.
      * @return {@code true} si el paquete estaba registrado como pendiente.
@@ -143,8 +141,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Registra un nuevo repartidor validando que su identificación no exista
-     * (RN-02).
+     * Registra un nuevo repartidor validando que su identificación no exista.
      *
      * @throws com.quindioexpress.excepciones.ReglaNegocioException si la
      *         identificación ya existe o el repartidor es nulo.
@@ -154,7 +151,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Busca un repartidor libre asignado a la zona destino del paquete (RN-08).
+     * Busca un repartidor libre asignado a la zona destino del paquete.
      *
      * @return el repartidor disponible, o {@code null} si no hay ninguno.
      */
@@ -163,8 +160,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Genera la vinculación operativa entre un paquete y un repartidor
-     * (RN-07, RN-08).
+     * Genera la vinculación operativa entre un paquete y un repartidor.
      *
      * @return {@code true} si la asignación fue válida.
      */
@@ -178,7 +174,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Recupera un repartidor por su identificación en O(1) (RF-24).
+     * Recupera un repartidor por su identificación en O(1).
      *
      * @return el repartidor encontrado, o {@code null} si no existe.
      */
@@ -187,8 +183,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Recupera un paquete por coincidencia directa de código en O(1)
-     * (RF-06, RF-08).
+     * Recupera un paquete por coincidencia directa de código en O(1).
      *
      * @return el paquete encontrado, o {@code null} si no existe.
      */
@@ -196,58 +191,58 @@ public class CentroDistribucion {
         return gestorColecciones.buscarPorCodigo(codigo);
     }
 
-    /** @return los nombres de municipios sin duplicados (RF-09). */
+    /** @return los nombres de municipios sin duplicados. */
     public Set<String> obtenerMunicipiosUnicos() {
         return gestorColecciones.obtenerMunicipiosUnicos();
     }
 
-    /** @return las zonas ordenadas alfabéticamente y sin repetir (RF-10). */
+    /** @return las zonas ordenadas alfabéticamente y sin repetir. */
     public SortedSet<String> obtenerMunicipiosOrdenados() {
         return gestorColecciones.obtenerMunicipiosOrdenados();
     }
 
-    /** @return los paquetes asociados a un municipio (RF-11). */
+    /** @return los paquetes asociados a un municipio. */
     public Set<Paquete> obtenerPaquetesPorMunicipio(String municipio) {
         return gestorColecciones.obtenerPaquetesPorMunicipio(municipio);
     }
 
-    /** @return la agrupación municipio -> conjunto de paquetes (RF-12). */
+    /** @return la agrupación municipio -> conjunto de paquetes. */
     public Map<String, Set<Paquete>> obtenerAgrupacionPorMunicipio() {
         return gestorColecciones.obtenerAgrupacionPorMunicipio();
     }
 
-    /** @return la lista de paquetes en orden exacto de registro (RF-04). */
+    /** @return la lista de paquetes en orden exacto de registro. */
     public List<Paquete> obtenerOrdenLlegada() {
         return gestorColecciones.obtenerOrdenLlegada();
     }
 
     // ------------------------------------------------------------------
     // ORDENAMIENTOS: siempre se ordena una copia; la lista de registro
-    // original nunca se reordena (RF-21, RA-12, prohibición #5).
+    // original nunca se reordena.
     // ------------------------------------------------------------------
 
-    /** Orden natural de Paquete (código ascendente) mediante Comparable (RF-17). */
+    /** Orden natural de Paquete (código ascendente) mediante Comparable. */
     public List<Paquete> ordenarNatural() {
         List<Paquete> copia = new ArrayList<>(gestorColecciones.obtenerOrdenLlegada());
         Collections.sort(copia);
         return copia;
     }
 
-    /** Criterio alternativo: prioridad de mayor a menor (RF-18). */
+    /** Criterio alternativo: prioridad de mayor a menor. */
     public List<Paquete> ordenarPorPrioridad() {
         List<Paquete> copia = new ArrayList<>(gestorColecciones.obtenerOrdenLlegada());
         copia.sort(new ComparadorPrioridad());
         return copia;
     }
 
-    /** Criterio alternativo: peso de mayor a menor (RF-19). */
+    /** Criterio alternativo: peso de mayor a menor. */
     public List<Paquete> ordenarPorPeso() {
         List<Paquete> copia = new ArrayList<>(gestorColecciones.obtenerOrdenLlegada());
         copia.sort(new ComparadorPeso());
         return copia;
     }
 
-    /** Criterio alternativo: tiempo estimado de menor a mayor (RF-20). */
+    /** Criterio alternativo: tiempo estimado de menor a mayor. */
     public List<Paquete> ordenarPorTiempo() {
         List<Paquete> copia = new ArrayList<>(gestorColecciones.obtenerOrdenLlegada());
         copia.sort(new ComparadorTiempo());
@@ -255,28 +250,21 @@ public class CentroDistribucion {
     }
 
     // ------------------------------------------------------------------
-    // ALGORITMOS (delegan en el paquete independiente `algoritmos`, RT-08).
+    // ALGORITMOS (delegan en el paquete independiente `algoritmos`).
     // ------------------------------------------------------------------
 
-    /**
-     * Suma recursiva de los pesos de un municipio sobre los paquetes pendientes
-     * (RF-32, RA-01).
-     */
+    /** Suma recursiva de los pesos de un municipio sobre los paquetes pendientes. */
     public double pesoTotalPorMunicipio(String municipio) {
         return AlgoritmosRecursivos.pesoTotalPorDestino(gestorColecciones.obtenerOrdenLlegada(), municipio);
     }
 
-    /**
-     * Conteo recursivo de paquetes con prioridad mayor o igual a un mínimo
-     * (RF-33, RA-02).
-     */
+    /** Conteo recursivo de paquetes con prioridad mayor o igual a un mínimo. */
     public int contarPrioridadMinima(int prioridadMinima) {
         return AlgoritmosRecursivos.contarPrioridadMinima(gestorColecciones.obtenerOrdenLlegada(), prioridadMinima);
     }
 
     /**
-     * Búsqueda binaria de un código sobre una copia ordenada por código
-     * (RF-34, RA-08, RA-12).
+     * Búsqueda binaria de un código sobre una copia ordenada por código.
      *
      * @return la posición en la copia ordenada, o {@code -1} si no existe.
      */
@@ -285,8 +273,7 @@ public class CentroDistribucion {
     }
 
     /**
-     * Paquete de mayor peso de los pendientes mediante divide y vencerás
-     * (RF-35, RA-14).
+     * Paquete de mayor peso de los pendientes mediante divide y vencerás.
      *
      * @throws com.quindioexpress.excepciones.ReglaNegocioException si no hay paquetes.
      */
@@ -294,10 +281,7 @@ public class CentroDistribucion {
         return DivideYVenceras.paqueteMayorPeso(gestorColecciones.obtenerOrdenLlegada());
     }
 
-    /**
-     * Activa o desactiva la traza de ejecución de todos los algoritmos
-     * (RP-06, RA-06).
-     */
+    /** Activa o desactiva la traza de ejecución de todos los algoritmos. */
     public void setTraza(boolean activa) {
         AlgoritmosRecursivos.TRAZA = activa;
         BusquedaBinaria.TRAZA = activa;

@@ -20,18 +20,16 @@ import java.util.TreeSet;
  *
  * <ul>
  *   <li>{@code ordenLlegada}: {@link List} que conserva exactamente el orden de
- *       registro (RE-01).</li>
- *   <li>{@code mapaPorCodigo}: {@link HashMap} para búsquedas O(1) por código
- *       (RE-02, RE-08).</li>
- *   <li>{@code municipiosUnicos}: {@link HashSet} con los destinos sin repetir
- *       (RE-03).</li>
+ *       registro.</li>
+ *   <li>{@code mapaPorCodigo}: {@link HashMap} para búsquedas O(1) por código.</li>
+ *   <li>{@code municipiosUnicos}: {@link HashSet} con los destinos sin repetir.</li>
  *   <li>{@code municipiosOrdenados}: {@link TreeSet} con los destinos ordenados
- *       alfabéticamente y sin repetir (RE-04).</li>
+ *       alfabéticamente y sin repetir.</li>
  *   <li>{@code paquetesPorMunicipio}: {@link Map} que agrupa los paquetes por
- *       destino (RE-05).</li>
+ *       destino.</li>
  * </ul>
  *
- * <p>Es el <b>único dueño</b> de estas estructuras (RT-07).</p>
+ * <p>Es el <b>único dueño</b> de estas estructuras.</p>
  */
 public class GestorColeccionesPaquetes {
 
@@ -61,7 +59,7 @@ public class GestorColeccionesPaquetes {
     /**
      * Registra un paquete en todas las colecciones del gestor.
      *
-     * <p>Valida que el código no exista previamente (RN-01). Si ya existe, la
+     * <p>Valida que el código no exista previamente. Si ya existe, la
      * operación no tiene efecto sobre las estructuras y lanza
      * {@link ReglaNegocioException} con un mensaje claro.</p>
      *
@@ -95,8 +93,7 @@ public class GestorColeccionesPaquetes {
     }
 
     /**
-     * Elimina un paquete de <b>todas</b> las estructuras de pendientes
-     * (RF-28, RP-08).
+     * Elimina un paquete de <b>todas</b> las estructuras de pendientes.
      *
      * <p>Si el municipio del paquete queda sin paquetes, se retira también de los
      * conjuntos de municipios para mantener la coherencia.</p>

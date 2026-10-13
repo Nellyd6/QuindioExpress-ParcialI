@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Demuestra con datos reducidos los ejemplos exactos exigidos por el enunciado:
- * RF-16 (orden de despacho), RA-07 (recursividad), RA-13 (búsqueda binaria) y
- * RA-21 (divide y vencerás). Incluye traza de ejecución (RA-06, RP-06).
+ * Demuestra con datos reducidos los ejemplos exactos del enunciado: el orden de
+ * despacho, la recursividad (peso y conteo), la búsqueda binaria y el divide y
+ * vencerás. Incluye la traza de ejecución.
  */
 public class DemoEjemplosExactos {
 
@@ -27,9 +27,9 @@ public class DemoEjemplosExactos {
         System.out.println("=== FIN DE LOS EJEMPLOS EXACTOS ===");
     }
 
-    /** RF-16: orden de despacho esperado PQ105, PQ731, PQ942, PQ420. */
+    /** Orden de despacho esperado PQ105, PQ731, PQ942, PQ420. */
     private void ejemploDespacho() {
-        System.out.println("\n1) Orden de despacho (RF-16)");
+        System.out.println("\n1) Orden de despacho");
         GestorDespachoPrioritario gestor = new GestorDespachoPrioritario();
         gestor.encolarPaquete(new Paquete("PQ420", "Armenia", 1.0, 3, 30));
         gestor.encolarPaquete(new Paquete("PQ731", "Armenia", 1.0, 5, 45));
@@ -46,9 +46,9 @@ public class DemoEjemplosExactos {
         System.out.println("   - Resultado: " + (obtenido.equals(esperado) ? "OK" : "FALLO"));
     }
 
-    /** RA-07 (a): subconjunto de Armenia suma 14.0 kg, con traza (RA-06). */
+    /** Subconjunto de Armenia que suma 14.0 kg, con traza de ejecución. */
     private void ejemploPesoRecursivo() {
-        System.out.println("\n2) Peso total recursivo de Armenia = 14.0 kg (RA-07, RA-06)");
+        System.out.println("\n2) Peso total recursivo de Armenia = 14.0 kg");
         List<Paquete> subconjunto = new ArrayList<>();
         subconjunto.add(new Paquete("PQ731", "Armenia", 3.2, 5, 2));
         subconjunto.add(new Paquete("PQ942", "Armenia", 7.5, 2, 6));
@@ -63,9 +63,9 @@ public class DemoEjemplosExactos {
         System.out.println("   - Resultado: " + (Math.abs(total - 14.0) < 1e-9 ? "OK" : "FALLO"));
     }
 
-    /** RA-07 (b): prioridades (5,2,4,1,5,3,4) -> 4 paquetes con prioridad >= 4. */
+    /** Prioridades (5,2,4,1,5,3,4): 4 paquetes con prioridad >= 4. */
     private void ejemploConteoRecursivo() {
-        System.out.println("\n3) Conteo recursivo con prioridad >= 4 (RA-07)");
+        System.out.println("\n3) Conteo recursivo con prioridad >= 4");
         int[] prioridades = {5, 2, 4, 1, 5, 3, 4};
         List<Paquete> lista = new ArrayList<>();
         for (int i = 0; i < prioridades.length; i++) {
@@ -77,9 +77,9 @@ public class DemoEjemplosExactos {
         System.out.println("   - Resultado: " + (cantidad == 4 ? "OK" : "FALLO"));
     }
 
-    /** RA-13: buscar PQ731 en 8 códigos ordenados -> posición 5. */
+    /** Buscar PQ731 en 8 códigos ordenados: posición 5. */
     private void ejemploBusquedaBinaria() {
-        System.out.println("\n4) Búsqueda binaria de PQ731 (RA-13)");
+        System.out.println("\n4) Búsqueda binaria de PQ731");
         String[] codigos = {"PQ105", "PQ214", "PQ318", "PQ421", "PQ567", "PQ731", "PQ842", "PQ942"};
         List<Paquete> ordenada = new ArrayList<>();
         for (String codigo : codigos) {
@@ -93,9 +93,9 @@ public class DemoEjemplosExactos {
         System.out.println("   - Resultado: " + (posicion == 5 && ausente == -1 ? "OK" : "FALLO"));
     }
 
-    /** RA-21: pesos 4.5, 12.0, 3.2, 18.7, 7.4, 5.1 -> 18.7 kg, con traza. */
+    /** Pesos 4.5, 12.0, 3.2, 18.7, 7.4, 5.1: mayor peso 18.7 kg, con traza. */
     private void ejemploMayorPeso() {
-        System.out.println("\n5) Paquete de mayor peso con divide y vencerás (RA-21, RA-06)");
+        System.out.println("\n5) Paquete de mayor peso con divide y vencerás");
         double[] pesos = {4.5, 12.0, 3.2, 18.7, 7.4, 5.1};
         List<Paquete> lista = new ArrayList<>();
         for (int i = 0; i < pesos.length; i++) {

@@ -8,7 +8,7 @@ import java.util.Objects;
  * Entidad que representa a un repartidor.
  *
  * <p>La identificación, el nombre y la zona son inmutables; el único estado
- * mutable es {@code disponible} (RT-03). Las validaciones se ejecutan en el
+ * mutable es {@code disponible}. Las validaciones se ejecutan en el
  * constructor y lanzan {@link ReglaNegocioException} con mensaje descriptivo.</p>
  */
 public class Repartidor {

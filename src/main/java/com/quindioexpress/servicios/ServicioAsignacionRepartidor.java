@@ -40,7 +40,7 @@ public class ServicioAsignacionRepartidor {
     }
 
     /**
-     * Registra un repartidor validando que su identificación sea única (RN-02).
+     * Registra un repartidor validando que su identificación sea única.
      *
      * @param repartidor repartidor a registrar.
      * @throws ReglaNegocioException si el repartidor es nulo o si ya existe otro

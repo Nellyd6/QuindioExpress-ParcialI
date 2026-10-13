@@ -47,7 +47,7 @@ public class GestorDespachoPrioritario {
     }
 
     /**
-     * Elimina un paquete concreto de la cola prioritaria (RF-28, RP-08).
+     * Elimina un paquete concreto de la cola prioritaria.
      *
      * <p>Se usa cuando un paquete ya fue entregado y no debe seguir siendo un
      * despacho pendiente.</p>
