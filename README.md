@@ -10,7 +10,7 @@ enlazada propia.
 Los datos iniciales se definen directamente en Java (sin archivos ni base de
 datos).
 
-## Requisitos
+## Entorno necesario
 
 - Java 17 o superior (probado con OpenJDK 22).
 - Sin librerías externas.
@@ -63,6 +63,56 @@ opción `1` ejecuta una demostración automática completa.
  0. Salir
 ```
 
+## Funcionalidad implementada
+
+### Registro y consulta
+- Registro de paquetes con prioridad por defecto 3 cuando no se indica; se
+  rechazan códigos duplicados y datos inválidos (peso, prioridad, tiempo y
+  destino vacío).
+- El orden exacto de registro se conserva: cada alta se agrega al final sin
+  alterar las posiciones previas.
+- Consulta de paquete por código y de repartidor por identificación en tiempo
+  constante (O(1)).
+- Municipios únicos sin repetir y municipios ordenados alfabéticamente.
+- Agrupación por municipio: cada destino mantiene su conjunto de paquetes.
+
+### Atención y despacho
+- Atención FIFO por orden de llegada (primero en llegar, primero en atenderse).
+- Despacho prioritario: mayor prioridad primero; desempates por tiempo estimado
+  (menor primero) y luego por código.
+- El orden de despacho esperado (`PQ105, PQ731, PQ942, PQ420`) queda verificado
+  por la demostración automática y por la opción 21.
+
+### Repartidores y entregas
+- Registro de repartidores con identificación única.
+- Asignación a un repartidor libre cuya zona coincide con el destino del
+  paquete; los no disponibles quedan excluidos.
+- Entrega: el paquete se retira de todas las estructuras de pendientes, se
+  registra en el historial y el repartidor vuelve a quedar disponible.
+- Historial de entregas en orden real de entrega, recorrible con `for-each` y
+  construido sobre la lista enlazada propia.
+
+### Ordenamientos
+- Orden natural por código mediante `Comparable`.
+- Criterios alternativos reutilizables mediante `Comparator`: prioridad (de
+  mayor a menor), peso (de mayor a menor) y tiempo (de menor a mayor).
+- Los ordenamientos se aplican siempre sobre copias: la lista de registro nunca
+  se reordena.
+
+### Algoritmos
+- Recursivos sin ciclos: peso total de un municipio y conteo de paquetes con
+  prioridad mínima, con traza de ejecución.
+- Búsqueda binaria de un código sobre la copia ordenada, con traza.
+- Divide y vencerás para hallar el paquete de mayor peso, con traza.
+
+### Estructura propia
+- `Coleccion<T>`: interfaz genérica (`Iterable`) que define el contrato.
+- `ListaEnlazada<T>`: lista simplemente enlazada con nodo interno privado,
+  construida sin usar las colecciones de Java.
+- Los casos límite están demostrados en la opción 20 (o en `DemoListaPropia`):
+  lista vacía, un solo elemento, eliminar primero/intermedio/último/inexistente,
+  posición inválida e iterador sin elementos.
+
 ## Estructura del proyecto
 
 ```
@@ -81,7 +131,7 @@ src/main/java/com/quindioexpress/
 │   ├── MenuAlgoritmos.java            Recursivos, búsqueda binaria y divide y vencerás
 │   ├── MenuOrdenamientos.java         Orden natural y criterios alternativos
 │   ├── DemoAutomatica.java            Demostración automática completa
-│   ├── DemoListaPropia.java           Casos límite de la lista propia (RE-24 a RE-31)
+│   ├── DemoListaPropia.java           Casos límite de la lista propia
 │   └── DemoEjemplosExactos.java       Ejemplos exactos del enunciado con traza
 ├── modelo/
 │   ├── Paquete.java                   Entidad inmutable; Comparable por código
@@ -97,9 +147,9 @@ src/main/java/com/quindioexpress/
 ├── algoritmos/                        Algoritmos independientes del estado (static)
 │   ├── AlgoritmosRecursivos.java      pesoTotalPorDestino, contarPrioridadMinima
 │   ├── BusquedaBinaria.java           Búsqueda binaria genérica y por código
-│   └── DivideYVenceras.java            Paquete de mayor peso (con traza)
+│   └── DivideYVenceras.java           Paquete de mayor peso (con traza)
 ├── excepciones/
-│   └── ReglaNegocioException.java      Excepción propia de reglas de negocio
+│   └── ReglaNegocioException.java     Excepción propia de reglas de negocio
 ├── datos/
 │   └── DatosIniciales.java            32 paquetes, 6 municipios, 8 repartidores
 └── servicios/                         Lógica de negocio
@@ -123,55 +173,6 @@ src/main/java/com/quindioexpress/
 | Despacho prioritario | `PriorityQueue<Paquete>` + `ComparadorDespacho` |
 | Repartidores | `Map<String, Repartidor>` → `LinkedHashMap` |
 | Historial de entregas | `ListaEnlazada<Paquete>` (propia, sin colecciones de Java) |
-
-## Cobertura de requisitos (Parte B)
-
-### Funcionales (RF)
-
-- [x] RF-01/02/03 Registro de paquete con prioridad por defecto 3 y rechazo por código duplicado
-- [x] RF-04/05 Orden exacto de registro conservado (altas sin alterar posiciones)
-- [x] RF-06/07/08 Consulta por código en O(1) sin recorrer todos los paquetes
-- [x] RF-09/10 Municipios únicos (`HashSet`) y ordenados (`TreeSet`)
-- [x] RF-11/12 Relación municipio → conjunto de paquetes
-- [x] RF-13/14/15 Atención FIFO y despacho prioritario repetible
-- [x] RF-16 Ejemplo de despacho verificado (PQ105, PQ731, PQ942, PQ420)
-- [x] RF-17 Orden natural por código (`Comparable`)
-- [x] RF-18/19/20 Orden por prioridad, peso y tiempo (`Comparator`)
-- [x] RF-21/22 Criterios alternativos reutilizables sobre copias
-- [x] RF-23/24 Registro y consulta de repartidores
-- [x] RF-25/26 Asignación según reglas y repartidor no disponible excluido
-- [x] RF-27/28/29 Entrega: retira de pendientes y agrega al historial
-- [x] RF-30/31 Historial ordenado y recorrible con `for-each`
-- [x] RF-32 a RF-35 Recursivos, búsqueda binaria y divide y vencerás
-
-### Reglas de negocio (RN)
-
-- [x] RN-01/02 Duplicados de código/identificación → `ReglaNegocioException`
-- [x] RN-03/04/05/06 Validaciones de peso, prioridad, tiempo y destino
-- [x] RN-07/08 Asignación rechazada si no disponible o zona distinta
-- [x] RN-09 a RN-16 Orden de llegada, desempates, historial con lista propia genérica e `Iterator`, recursividad y DyV
-
-### Estructuras (RE)
-
-- [x] RE-01 a RE-08 JCF justificado (List, Map, Set, TreeSet, Queue, PriorityQueue)
-- [x] RE-09 a RE-11 Interfaz genérica `Coleccion<T>` (qué) separada de `ListaEnlazada<T>` (cómo)
-- [x] RE-12 a RE-23 Lista simplemente enlazada genérica, nodo privado, `Iterable`/`Iterator`
-- [x] RE-24 a RE-31 Casos límite demostrados en la opción 20 (o `DemoListaPropia`)
-- [x] RE-32 a RE-39 `Comparable` coherente y comparadores reutilizables (incluido el de despacho)
-
-### Algoritmos (RA)
-
-- [x] RA-01 a RA-07 Recursivos sin ciclos, con caso base, avance y traza
-- [x] RA-08 a RA-13 Búsqueda binaria sobre copia ordenada con precondición verificada
-- [x] RA-14 a RA-22 Divide y vencerás con caso base, división, subproblemas, combinación y manejo de vacío/nulo
-
-### Datos, ejecución, técnicos y repositorio
-
-- [x] RD-01 a RD-09 30+ paquetes, 5+ destinos, 6+ repartidores, variedad y empates
-- [x] RD-10 Repartidor no disponible y municipio sin repartidor (Filandia)
-- [x] RP-01 a RP-09 Compila y ejecuta; demo por secciones con casos de éxito y error; trazas; casos límite de la lista; entrega sin pendientes; menú repetible
-- [x] RT-01 a RT-14 Solo temas del curso, declaración por interfaz, `Paquete` inmutable, excepción propia, paquetes por responsabilidad, dueño único por estructura, algoritmos independientes, convenciones y Javadoc
-- [x] RR-01/02 `src/` con todo el código y `README.md`
 
 ## Ejemplos exactos verificados
 
