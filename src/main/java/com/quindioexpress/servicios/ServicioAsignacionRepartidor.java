@@ -1,5 +1,6 @@
 package com.quindioexpress.servicios;
 
+import com.quindioexpress.excepciones.ReglaNegocioException;
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.modelo.Repartidor;
 
@@ -39,21 +40,21 @@ public class ServicioAsignacionRepartidor {
     }
 
     /**
-     * Registra un repartidor validando que su identificación sea única.
+     * Registra un repartidor validando que su identificación sea única (RN-02).
      *
      * @param repartidor repartidor a registrar.
-     * @return {@code true} si se registró; {@code false} si es nulo o si ya
-     *         existe un repartidor con la misma identificación.
+     * @throws ReglaNegocioException si el repartidor es nulo o si ya existe otro
+     *         con la misma identificación.
      */
-    public boolean registrarRepartidor(Repartidor repartidor) {
+    public void registrarRepartidor(Repartidor repartidor) {
         if (repartidor == null) {
-            return false;
+            throw new ReglaNegocioException("No se puede registrar un repartidor nulo.");
         }
         if (repartidoresPorId.containsKey(repartidor.getIdRepartidor())) {
-            return false;
+            throw new ReglaNegocioException(
+                    "Ya existe un repartidor con la identificación " + repartidor.getIdRepartidor() + ".");
         }
         repartidoresPorId.put(repartidor.getIdRepartidor(), repartidor);
-        return true;
     }
 
     /**

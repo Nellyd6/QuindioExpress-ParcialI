@@ -1,4 +1,4 @@
-package com.quindioexpress.util;
+package com.quindioexpress.datos;
 
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.modelo.Repartidor;
@@ -10,15 +10,18 @@ import java.util.Set;
 
 /**
  * Construye y suministra los datos iniciales de prueba para el sistema de
- * gestión de QuindíoExpress.
+ * gestión de QuindíoExpress (RD-08: definidos directamente en Java).
  *
  * <p>Todos los datos cumplen estrictamente las reglas de negocio del dominio
  * (peso &gt; 0, prioridad entre 1 y 5, tiempo estimado entero positivo, códigos
  * e identificadores únicos). Antes de retornar, cada método ejecuta
  * validaciones preventivas que lanzan {@link IllegalStateException} si algún
  * dato violara dichas reglas, evitando propagar información inconsistente.</p>
+ *
+ * <p>Cumple RD-10: hay repartidores no disponibles y el municipio <b>Filandia</b>
+ * queda sin repartidor para evidenciar el rechazo de asignaciones.</p>
  */
-public final class GeneradorDatosIniciales {
+public final class DatosIniciales {
 
     /** Mínimo de paquetes iniciales exigido por el enunciado. */
     private static final int MIN_PAQUETES = 30;
@@ -30,7 +33,7 @@ public final class GeneradorDatosIniciales {
     private static final int MIN_REPARTIDORES = 6;
 
     /** Constructor privado: clase utilitaria, no instanciable. */
-    private GeneradorDatosIniciales() {
+    private DatosIniciales() {
     }
 
     /**
@@ -43,9 +46,8 @@ public final class GeneradorDatosIniciales {
      *   <li>Códigos no consecutivos y sin repetir (patrón {@code PQ###}).</li>
      *   <li>Pesos mayores a 0 kg, prioridades entre 1 y 5 y tiempos enteros
      *       positivos.</li>
-     *   <li>Distribución desbalanceada por municipio para probar
-     *       agrupamientos, e empates de prioridad/tiempo para ejercitar las
-     *       reglas de desempate de la cola de prioridad.</li>
+     *   <li>Distribución desbalanceada por municipio y empates de
+     *       prioridad/tiempo para ejercitar las reglas de desempate.</li>
      * </ul>
      *
      * @return lista mutable con los paquetes iniciales.
@@ -78,7 +80,7 @@ public final class GeneradorDatosIniciales {
         paquetes.add(new Paquete("PQ361", "Salento", 1.6, 4, 4));
         paquetes.add(new Paquete("PQ945", "Salento", 6.7, 1, 9));
 
-        // --- Filandia (5 paquetes) ---
+        // --- Filandia (5 paquetes) - municipio SIN repartidor (RD-10) ---
         paquetes.add(new Paquete("PQ412", "Filandia", 3.3, 3, 4));
         paquetes.add(new Paquete("PQ678", "Filandia", 7.2, 5, 3));
         paquetes.add(new Paquete("PQ259", "Filandia", 0.7, 2, 5));
@@ -107,9 +109,10 @@ public final class GeneradorDatosIniciales {
      * <p>Características de los datos generados:</p>
      * <ul>
      *   <li>8 repartidores con identificadores únicos (supera el mínimo de 6).</li>
-     *   <li>Zonas asignadas correspondientes a los municipios destino usados
-     *       por los paquetes.</li>
-     *   <li>Estados de disponibilidad variados (algunos disponibles y otros no).</li>
+     *   <li>Zonas cubiertas: Armenia, Calarcá, Salento, Quimbaya y Montenegro.</li>
+     *   <li><b>Filandia no tiene repartidor</b> (RD-10).</li>
+     *   <li>Estados de disponibilidad variados: REP-02, REP-05 y REP-07 no
+     *       disponibles (RD-10).</li>
      * </ul>
      *
      * @return lista mutable con los repartidores iniciales.
@@ -120,7 +123,7 @@ public final class GeneradorDatosIniciales {
         repartidores.add(new Repartidor("REP-01", "Carlos Pérez", "Armenia"));
         repartidores.add(new Repartidor("REP-02", "Ana Gómez", "Calarcá"));
         repartidores.add(new Repartidor("REP-03", "Luis Rojas", "Salento"));
-        repartidores.add(new Repartidor("REP-04", "Marta Díaz", "Filandia"));
+        repartidores.add(new Repartidor("REP-04", "Marta Díaz", "Salento"));
         repartidores.add(new Repartidor("REP-05", "Jorge Ramírez", "Quimbaya"));
         repartidores.add(new Repartidor("REP-06", "Sofía Herrera", "Montenegro"));
         repartidores.add(new Repartidor("REP-07", "Andrés Castro", "Armenia"));
@@ -171,7 +174,7 @@ public final class GeneradorDatosIniciales {
             if (paquete.getPeso() <= 0) {
                 throw new IllegalStateException("Paquete " + paquete.getCodigo() + " con peso no válido.");
             }
-            if (paquete.getPrioridad() < 1 || paquete.getPrioridad() > 5) {
+            if (paquete.getPrioridad() < Paquete.PRIORIDAD_MIN || paquete.getPrioridad() > Paquete.PRIORIDAD_MAX) {
                 throw new IllegalStateException("Paquete " + paquete.getCodigo() + " con prioridad fuera de rango.");
             }
             if (paquete.getTiempoEstimado() <= 0) {

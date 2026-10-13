@@ -1,5 +1,6 @@
 package com.quindioexpress.servicios;
 
+import com.quindioexpress.excepciones.ReglaNegocioException;
 import com.quindioexpress.modelo.Paquete;
 
 import java.util.ArrayList;
@@ -18,14 +19,19 @@ import java.util.TreeSet;
  * a las consultas frecuentes de la operación.
  *
  * <ul>
- *   <li>{@code ordenLlegada}: conserva exactamente el orden de registro.</li>
- *   <li>{@code mapaPorCodigo}: {@link HashMap} para búsquedas O(1) por código.</li>
- *   <li>{@code municipiosUnicos}: {@link HashSet} con los destinos sin repetir.</li>
+ *   <li>{@code ordenLlegada}: {@link List} que conserva exactamente el orden de
+ *       registro (RE-01).</li>
+ *   <li>{@code mapaPorCodigo}: {@link HashMap} para búsquedas O(1) por código
+ *       (RE-02, RE-08).</li>
+ *   <li>{@code municipiosUnicos}: {@link HashSet} con los destinos sin repetir
+ *       (RE-03).</li>
  *   <li>{@code municipiosOrdenados}: {@link TreeSet} con los destinos ordenados
- *       alfabéticamente y sin repetir.</li>
- *   <li>{@code paquetesPorMunicipio}: {@link HashMap} que agrupa los paquetes
- *       por destino.</li>
+ *       alfabéticamente y sin repetir (RE-04).</li>
+ *   <li>{@code paquetesPorMunicipio}: {@link Map} que agrupa los paquetes por
+ *       destino (RE-05).</li>
  * </ul>
+ *
+ * <p>Es el <b>único dueño</b> de estas estructuras (RT-07).</p>
  */
 public class GestorColeccionesPaquetes {
 
@@ -55,20 +61,21 @@ public class GestorColeccionesPaquetes {
     /**
      * Registra un paquete en todas las colecciones del gestor.
      *
-     * <p>Valida que el código no exista previamente en {@code mapaPorCodigo}.
-     * Si el paquete es nulo o el código ya está registrado, la operación no
-     * tiene efecto y retorna {@code false}.</p>
+     * <p>Valida que el código no exista previamente (RN-01). Si ya existe, la
+     * operación no tiene efecto sobre las estructuras y lanza
+     * {@link ReglaNegocioException} con un mensaje claro.</p>
      *
      * @param paquete paquete a registrar.
-     * @return {@code true} si el paquete se registró; {@code false} si era nulo
-     *         o si ya existía un paquete con el mismo código.
+     * @throws ReglaNegocioException si el paquete es nulo o si ya existe un
+     *         paquete con el mismo código.
      */
-    public boolean registrarPaquete(Paquete paquete) {
+    public void registrarPaquete(Paquete paquete) {
         if (paquete == null) {
-            return false;
+            throw new ReglaNegocioException("No se puede registrar un paquete nulo.");
         }
         if (mapaPorCodigo.containsKey(paquete.getCodigo())) {
-            return false;
+            throw new ReglaNegocioException(
+                    "Ya existe un paquete registrado con el código " + paquete.getCodigo() + ".");
         }
 
         // Conserva el orden de llegada
@@ -85,7 +92,38 @@ public class GestorColeccionesPaquetes {
         paquetesPorMunicipio
                 .computeIfAbsent(paquete.getDestino(), k -> new LinkedHashSet<>())
                 .add(paquete);
+    }
 
+    /**
+     * Elimina un paquete de <b>todas</b> las estructuras de pendientes
+     * (RF-28, RP-08).
+     *
+     * <p>Si el municipio del paquete queda sin paquetes, se retira también de los
+     * conjuntos de municipios para mantener la coherencia.</p>
+     *
+     * @param paquete paquete a eliminar.
+     * @return {@code true} si el paquete estaba registrado y se eliminó;
+     *         {@code false} en caso contrario.
+     */
+    public boolean eliminarPaquete(Paquete paquete) {
+        if (paquete == null) {
+            return false;
+        }
+        if (mapaPorCodigo.remove(paquete.getCodigo()) == null) {
+            return false;
+        }
+
+        ordenLlegada.remove(paquete);
+
+        Set<Paquete> delMunicipio = paquetesPorMunicipio.get(paquete.getDestino());
+        if (delMunicipio != null) {
+            delMunicipio.remove(paquete);
+            if (delMunicipio.isEmpty()) {
+                paquetesPorMunicipio.remove(paquete.getDestino());
+                municipiosUnicos.remove(paquete.getDestino());
+                municipiosOrdenados.remove(paquete.getDestino());
+            }
+        }
         return true;
     }
 

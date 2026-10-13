@@ -1,8 +1,8 @@
 package com.quindioexpress.servicios;
 
+import com.quindioexpress.comparadores.ComparadorDespacho;
 import com.quindioexpress.modelo.Paquete;
 
-import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
@@ -47,6 +47,19 @@ public class GestorDespachoPrioritario {
     }
 
     /**
+     * Elimina un paquete concreto de la cola prioritaria (RF-28, RP-08).
+     *
+     * <p>Se usa cuando un paquete ya fue entregado y no debe seguir siendo un
+     * despacho pendiente.</p>
+     *
+     * @param paquete paquete a eliminar.
+     * @return {@code true} si estaba en la cola y se eliminó; {@code false} en caso contrario.
+     */
+    public boolean eliminar(Paquete paquete) {
+        return paquete != null && colaPrioritaria.remove(paquete);
+    }
+
+    /**
      * Inspecciona el siguiente paquete a despachar sin removerlo.
      *
      * @return el siguiente paquete a despachar, o {@code null} si la cola está vacía.
@@ -67,40 +80,5 @@ public class GestorDespachoPrioritario {
      */
     public boolean estaVacia() {
         return colaPrioritaria.isEmpty();
-    }
-
-    /**
-     * {@link Comparator} personalizado que implementa las reglas de negocio del
-     * despacho prioritario de QuindíoExpress.
-     */
-    public static class ComparadorDespacho implements Comparator<Paquete> {
-
-        @Override
-        public int compare(Paquete p1, Paquete p2) {
-            if (p1 == p2) {
-                return 0;
-            }
-            if (p1 == null) {
-                return 1;
-            }
-            if (p2 == null) {
-                return -1;
-            }
-
-            // Regla 1: mayor prioridad primero (orden descendente)
-            int comparacionPrioridad = Integer.compare(p2.getPrioridad(), p1.getPrioridad());
-            if (comparacionPrioridad != 0) {
-                return comparacionPrioridad;
-            }
-
-            // Regla 2: menor tiempo estimado primero (orden ascendente)
-            int comparacionTiempo = Double.compare(p1.getTiempoEstimado(), p2.getTiempoEstimado());
-            if (comparacionTiempo != 0) {
-                return comparacionTiempo;
-            }
-
-            // Regla 3: orden alfabético ascendente por código
-            return p1.getCodigo().compareTo(p2.getCodigo());
-        }
     }
 }

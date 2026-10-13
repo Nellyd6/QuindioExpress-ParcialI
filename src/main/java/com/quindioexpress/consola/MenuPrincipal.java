@@ -28,6 +28,9 @@ public class MenuPrincipal {
         MenuDespacho despacho = new MenuDespacho(centro, entrada);
         MenuRepartidores repartidores = new MenuRepartidores(centro, entrada);
         MenuAlgoritmos algoritmos = new MenuAlgoritmos(centro, entrada);
+        MenuOrdenamientos ordenamientos = new MenuOrdenamientos(centro);
+        DemoListaPropia listaPropia = new DemoListaPropia();
+        DemoEjemplosExactos ejemplosExactos = new DemoEjemplosExactos();
 
         registrar(1, "Ejecutar demostración automática completa", demo::ejecutar);
         registrar(2, "Listar paquetes en orden de llegada", paquetes::listar);
@@ -46,6 +49,10 @@ public class MenuPrincipal {
         registrar(15, "Contar paquetes por prioridad mínima (recursivo)", algoritmos::contarPrioridad);
         registrar(16, "Búsqueda binaria por código", algoritmos::busquedaBinaria);
         registrar(17, "Paquete de mayor peso (divide y vencerás)", algoritmos::mayorPeso);
+        registrar(18, "Consultar repartidor por identificación (HashMap O(1))", repartidores::consultar);
+        registrar(19, "Ver ordenamientos: natural, prioridad, peso y tiempo (Comparator)", ordenamientos::verTodos);
+        registrar(20, "Demostrar lista enlazada propia (casos límite)", listaPropia::ejecutar);
+        registrar(21, "Ver ejemplos exactos del enunciado (despacho, recursivos, binaria, DyV)", ejemplosExactos::ejecutar);
     }
 
     /** Agrega una opción al menú. */

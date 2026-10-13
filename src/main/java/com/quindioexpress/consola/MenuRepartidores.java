@@ -1,5 +1,6 @@
 package com.quindioexpress.consola;
 
+import com.quindioexpress.excepciones.ReglaNegocioException;
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.modelo.Repartidor;
 import com.quindioexpress.servicios.CentroDistribucion;
@@ -38,14 +39,22 @@ public class MenuRepartidores {
 
         try {
             Repartidor repartidor = new Repartidor(identificacion, nombre, zona);
-            boolean registrado = centro.registrarRepartidor(repartidor);
-            if (registrado) {
-                System.out.println("  Repartidor registrado: " + repartidor);
-            } else {
-                System.out.println("  No se registró (¿identificación duplicada?).");
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("  Datos inválidos: " + e.getMessage());
+            centro.registrarRepartidor(repartidor);
+            System.out.println("  Repartidor registrado: " + repartidor);
+        } catch (ReglaNegocioException e) {
+            System.out.println("  Registro rechazado: " + e.getMessage());
+        }
+    }
+
+    /** Consulta un repartidor por su identificación (HashMap O(1)). */
+    public void consultar() {
+        String identificacion = entrada.leerTexto("\nIdentificación del repartidor a consultar: ");
+        if (identificacion == null) return;
+        Repartidor repartidor = centro.consultarRepartidor(identificacion);
+        if (repartidor == null) {
+            System.out.println("  No existe un repartidor con identificación " + identificacion + ".");
+        } else {
+            System.out.println("  Encontrado: " + repartidor);
         }
     }
 

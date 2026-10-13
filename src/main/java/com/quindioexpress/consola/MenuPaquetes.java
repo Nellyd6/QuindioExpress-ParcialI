@@ -1,5 +1,6 @@
 package com.quindioexpress.consola;
 
+import com.quindioexpress.excepciones.ReglaNegocioException;
 import com.quindioexpress.modelo.Paquete;
 import com.quindioexpress.servicios.CentroDistribucion;
 
@@ -38,21 +39,18 @@ public class MenuPaquetes {
         if (destino == null) return;
         double peso = entrada.leerDouble("Peso (kg): ");
         if (Double.isNaN(peso)) return;
-        int prioridad = entrada.leerEntero("Prioridad (1-5): ");
+        int prioridad = entrada.leerEntero("Prioridad (1-" + Paquete.PRIORIDAD_MAX + ", vacío = "
+                + Paquete.PRIORIDAD_POR_DEFECTO + "): ");
         if (prioridad == Integer.MIN_VALUE) return;
-        double tiempo = entrada.leerDouble("Tiempo estimado: ");
-        if (Double.isNaN(tiempo)) return;
+        int tiempo = entrada.leerEntero("Tiempo estimado (min): ");
+        if (tiempo == Integer.MIN_VALUE) return;
 
         try {
             Paquete paquete = new Paquete(codigo, destino, peso, prioridad, tiempo);
-            boolean registrado = centro.registrarNuevoPaquete(paquete);
-            if (registrado) {
-                System.out.println("  Paquete registrado: " + paquete);
-            } else {
-                System.out.println("  No se registró (¿código duplicado?).");
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("  Datos inválidos: " + e.getMessage());
+            centro.registrarNuevoPaquete(paquete);
+            System.out.println("  Paquete registrado: " + paquete);
+        } catch (ReglaNegocioException e) {
+            System.out.println("  Registro rechazado: " + e.getMessage());
         }
     }
 
